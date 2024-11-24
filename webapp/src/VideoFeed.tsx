@@ -3,7 +3,7 @@ import { ToggleButtonGroup, ToggleButton, styled, Alert, AlertTitle } from '@mui
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMicrochip, faEye, faBaby, faXmark, faCropSimple } from '@fortawesome/free-solid-svg-icons'
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
-import { ProgressBar } from  'react-loader-spinner'
+import { ProgressBar } from 'react-loader-spinner'
 import { CroppableVideoFeed } from './CroppableVideoFeed';
 
 const BorderLinearProgress = styled(LinearProgress)<{ awake: boolean }>(({ theme, awake }) => ({
@@ -49,17 +49,17 @@ type VideoFeedProps = {
 export default function VideoFeed({ modelProba, setModelProba, videoFeedType, setVideoFeedType }: VideoFeedProps) {
 
   const [bodyFound, setBodyFound] = useState(false)
-  const videoFeed = videoFeedType === VideoFeedTypeEnum.ML ? `http://${process.env.REACT_APP_BACKEND_IP}/video_feed/processed` : `http://${process.env.REACT_APP_BACKEND_IP}/video_feed/raw`;
+  const videoFeed = videoFeedType === VideoFeedTypeEnum.ML ? `https://${process.env.REACT_APP_BACKEND_IP}/video_feed/processed` : `https://${process.env.REACT_APP_BACKEND_IP}/video_feed/raw`;
 
   useEffect(() => {
-    const intervalId = setInterval(async () => { 
-        const [presentProba, _notPresentProba, _time, bodyFound] = (await (await fetch(`http://${process.env.REACT_APP_BACKEND_IP}/getClassificationProbabilities`)).text()).split(',');
-        console.log('modelProba: ', presentProba);
-        console.log("bodyFound: ", bodyFound)
-        setBodyFound(bodyFound.toLowerCase() === "true");
-        if(presentProba !== '') {
-          setModelProba(parseFloat(presentProba));
-        }
+    const intervalId = setInterval(async () => {
+      const [presentProba, _notPresentProba, _time, bodyFound] = (await (await fetch(`https://${process.env.REACT_APP_BACKEND_IP}/getClassificationProbabilities`)).text()).split(',');
+      console.log('modelProba: ', presentProba);
+      console.log("bodyFound: ", bodyFound)
+      setBodyFound(bodyFound.toLowerCase() === "true");
+      if (presentProba !== '') {
+        setModelProba(parseFloat(presentProba));
+      }
     }, REFETCH_CLASSIFICATION_MS)
 
     return () => clearInterval(intervalId);
@@ -75,10 +75,10 @@ export default function VideoFeed({ modelProba, setModelProba, videoFeedType, se
   );
 
   const sendRetrainingRequest = async (classification: any) => {
-    if(retraining) return;
+    if (retraining) return;
     setRetraining(true);
     console.log('Retraining...');
-    const trainingResult = await fetch(`http://${process.env.REACT_APP_BACKEND_IP}/retrainWithNewSample/${classification}`);
+    const trainingResult = await fetch(`https://${process.env.REACT_APP_BACKEND_IP}/retrainWithNewSample/${classification}`);
     console.log("res: ", trainingResult);
     setRetraining(false);
     setSuccess(true);
@@ -104,44 +104,44 @@ export default function VideoFeed({ modelProba, setModelProba, videoFeedType, se
   return (
 
     <div style={{ width: '100%', marginTop: '10px' }}>
-        <div>
-          <div style={{ width: '100%', position: 'relative' }}>
-            <h3 style={{ position: 'absolute', left: '10%', zIndex: '1' }}><span style={{ color: 'red' }}>🔴 Live</span></h3>
+      <div>
+        <div style={{ width: '100%', position: 'relative' }}>
+          <h3 style={{ position: 'absolute', left: '10%', zIndex: '1' }}><span style={{ color: 'red' }}>🔴 Live</span></h3>
 
-            {videoElement}
+          {videoElement}
 
-          </div>
-          {videoFeedType === VideoFeedTypeEnum.ML ? (
+        </div>
+        {videoFeedType === VideoFeedTypeEnum.ML ? (
           <div>
             <div style={{ width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column', justifyContent: 'center', paddingBottom: '15px' }}>
               <span style={{ marginTop: '8px', width: '90%' }}><b>{modelHeaderText}</b></span>
               <span style={{ marginBottom: '24px', width: '90%' }}><i>If incorrect, use buttons to retrain</i></span>
               {success && (
-                <div style={{ marginBottom: '25px'}}>
+                <div style={{ marginBottom: '25px' }}>
                   {successNotification}
                 </div>
               )}
               <div style={{ display: 'flex', flexDirection: 'row', marginBottom: '15px' }}>
-                  {retraining &&
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <ProgressBar
-                        height="80"
-                        width="80"
-                        ariaLabel="progress-bar-loading"
-                        wrapperClass="progress-bar-wrapper"
-                        borderColor = 'orange'
-                        barColor = 'steelblue'
-                      />
-                      <p style={{ margin: 0, marginTop: '-20px' }}>Training...</p>
-                    </div>
-                  }
+                {retraining &&
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <ProgressBar
+                      height="80"
+                      width="80"
+                      ariaLabel="progress-bar-loading"
+                      wrapperClass="progress-bar-wrapper"
+                      borderColor='orange'
+                      barColor='steelblue'
+                    />
+                    <p style={{ margin: 0, marginTop: '-20px' }}>Training...</p>
+                  </div>
+                }
               </div>
-              
+
               <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '90%', opacity: bodyFound ? '0.5' : '1.0', }}>
                 <div style={{ display: 'flex', flexDirection: 'column', opacity: modelProba > 0.5 ? .3 : 1 }}>
                   {/* <FontAwesomeIcon size="3x" icon={faBaby} color="blue"/>
                   <p style={{ margin: '0' }}>Baby present</p> */}
-                  <div onClick={() => (modelProba <= 0.5 && !bodyFound) ? sendRetrainingRequest('baby') : null} style={{color: 'orange', borderRadius: '15px', textAlign: 'center', margin: 'auto', width: '60px', boxShadow: '1px 1px 10px 1px rgba(0,0,0,0.7)', backgroundColor: 'rgba(0,0,255,0.75)' }}>
+                  <div onClick={() => (modelProba <= 0.5 && !bodyFound) ? sendRetrainingRequest('baby') : null} style={{ color: 'orange', borderRadius: '15px', textAlign: 'center', margin: 'auto', width: '60px', boxShadow: '1px 1px 10px 1px rgba(0,0,0,0.7)', backgroundColor: 'rgba(0,0,255,0.75)' }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <FontAwesomeIcon size="2x" icon={faBaby} />
                       <p style={{ margin: '0', marginBottom: '8px' }} >Yes</p>
@@ -150,16 +150,16 @@ export default function VideoFeed({ modelProba, setModelProba, videoFeedType, se
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', width: '55%', justifyContent: 'center' }}>
                   <span >Is your baby present? <b className='linear-wipe' style={{
-                      'WebkitBackgroundClip': 'text',
-                      background: modelProba <= 0.5 ? 'linear-gradient(-45deg, #ffc400 20%, #ffa600 40%, #ff9900 60%, #ff6f00 80%)' : 'linear-gradient(-45deg, rgb(150, 150, 255), rgb(100, 150, 255), rgb(50, 50, 255))'
-                    }}>{modelProba <= 0.5 ? 'No' : 'Yes'}</b></span>
-                  <BorderLinearProgress variant="determinate" value={modelProba*100} awake={modelProba <= 0.5} />
+                    'WebkitBackgroundClip': 'text',
+                    background: modelProba <= 0.5 ? 'linear-gradient(-45deg, #ffc400 20%, #ffa600 40%, #ff9900 60%, #ff6f00 80%)' : 'linear-gradient(-45deg, rgb(150, 150, 255), rgb(100, 150, 255), rgb(50, 50, 255))'
+                  }}>{modelProba <= 0.5 ? 'No' : 'Yes'}</b></span>
+                  <BorderLinearProgress variant="determinate" value={modelProba * 100} awake={modelProba <= 0.5} />
                   <span>AI Confidence</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', opacity: modelProba < 0.5 ? .3 : 1 }}>
                   {/* <FontAwesomeIcon size="3x" icon={faXmark} color="orange"/>
                   <p style={{ margin: '0' }}>Baby not present</p> */}
-                  <div onClick={() => (modelProba >= 0.5 && !bodyFound) ? sendRetrainingRequest('no_baby') : null} style={{color: 'blue', borderRadius: '15px', textAlign: 'center', margin: 'auto', width: '60px', boxShadow: '1px 1px 10px 1px rgba(0,0,0,0.7)', backgroundColor: 'rgba(255,165,0,0.75)' }}>
+                  <div onClick={() => (modelProba >= 0.5 && !bodyFound) ? sendRetrainingRequest('no_baby') : null} style={{ color: 'blue', borderRadius: '15px', textAlign: 'center', margin: 'auto', width: '60px', boxShadow: '1px 1px 10px 1px rgba(0,0,0,0.7)', backgroundColor: 'rgba(255,165,0,0.75)' }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <FontAwesomeIcon size="2x" icon={faXmark} />
                       <p style={{ margin: '0', marginBottom: '8px' }}>No</p>
@@ -168,14 +168,14 @@ export default function VideoFeed({ modelProba, setModelProba, videoFeedType, se
                 </div>
               </div>
             </div>
-        </div>
-          
-          )
-        : <Fragment></Fragment>}
+          </div>
+
+        )
+          : <Fragment></Fragment>}
       </div>
 
 
-      
+
       <div style={{ width: '100%', marginTop: '20px', marginBottom: '10px', display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
         {/* <h3><span style={{ color: 'red' }}>🔴 Live</span></h3> */}
 
@@ -186,7 +186,7 @@ export default function VideoFeed({ modelProba, setModelProba, videoFeedType, se
           color="primary"
         >
           <CustomToggle disabled={requireUserToSetBounds} value={VideoFeedTypeEnum.RAW}>
-             <FontAwesomeIcon size="3x" icon={faEye} />
+            <FontAwesomeIcon size="3x" icon={faEye} />
           </CustomToggle>
           <CustomToggle disabled={requireUserToSetBounds} value={VideoFeedTypeEnum.ML}>
             <FontAwesomeIcon size="3x" icon={faMicrochip} />

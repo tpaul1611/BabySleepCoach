@@ -18,8 +18,8 @@ export function eventsWithinRange(events: any, startDate: any, endDate: any) {
 const getSleepLogs = async (forecast: any) => {
 
   const file = forecast ? 'sleep_logs_forecasted' : 'sleep_logs';
-  // Request sleep log data from HTTP server on the device (somewhere on LAN) which is running with sleep tracking service
-  const sleepLogs = await d3.csv(`http://${process.env.REACT_APP_RESOURCE_SERVER_IP}/${file}.csv`);
+  // Request sleep log data from https server on the device (somewhere on LAN) which is running with sleep tracking service
+  const sleepLogs = await d3.csv(`https://${process.env.REACT_APP_RESOURCE_SERVER_IP}/${file}.csv`);
 
   // convert timestamps to date objects
   sleepLogs.forEach((d) => {
