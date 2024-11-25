@@ -10,8 +10,24 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     ports:
-      - "127.0.0.1:${PORT}:80" # Exposing port 80 for HTTP on localhost
+      - "${PORT}:80"
     restart: always
+
+  mediamtx:
+    image: bluenviron/mediamtx
+    networks:
+      - internet
+      - isolation
+    restart: always
+    environment:
+      - MTX_PROTOCOLS=tcp
+      - MTX_RTMP=no
+      - MTX_HLS=no
+      - MTX_WEBRTC=no
+      - MTX_SRT=no
+      - MTX_PATHS_LIVE_SOURCE=rtsp://${CAM_USERNAME}:${CAM_PASSWORD}@192.168.0.4:554/stream1
+    expose:
+      - "8554"
 
   baby-sleep-coach:
     build:
@@ -35,4 +51,5 @@ services:
 
 networks:
   internet: {}
-  isolation: # internal: true
+  isolation:
+    internal: true
